@@ -50,6 +50,13 @@ android {
 }
 
 dependencies {
+
+    //Accompanist
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.4-beta")
+
+    val nav_version = "2.6.0"
+    implementation ("androidx.navigation:navigation-compose:$nav_version")
+
     //Splash Api
     implementation ("androidx.core:core-splashscreen:1.0.1")
 
