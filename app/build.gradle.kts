@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.dogsphotos"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.dogsphotos"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -50,6 +50,8 @@ android {
 }
 
 dependencies {
+    //Splash Api
+    implementation ("androidx.core:core-splashscreen:1.0.1")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
