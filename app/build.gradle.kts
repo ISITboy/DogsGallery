@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -30,17 +32,17 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.4.7"
     }
     packaging {
         resources {
@@ -51,16 +53,40 @@ android {
 
 dependencies {
 
+    //Paging 3
+    val paging_version = "3.1.1"
+    implementation ("androidx.paging:paging-runtime:$paging_version")
+    implementation ("androidx.paging:paging-compose:3.2.0-rc01")
+    //Compose Foundation
+    implementation ("androidx.compose.foundation:foundation:1.4.3")
+    //Coil
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    //Accompanist
+    implementation( "com.google.accompanist:accompanist-systemuicontroller:0.31.4-beta")
+
+    //Retrofit
+    val retrofit_version = "2.9.0"
+    implementation ("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation ("com.squareup.retrofit2:converter-gson:$retrofit_version")
+
+    //Dagger Hilt
+    val hilt_version = "2.46.1"
+    implementation ("com.google.dagger:hilt-android:$hilt_version")
+    kapt ("com.google.dagger:hilt-compiler:$hilt_version")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.1.0")
     //Accompanist
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.31.4-beta")
 
-    val nav_version = "2.6.0"
+    val nav_version = "2.7.5"
     implementation ("androidx.navigation:navigation-compose:$nav_version")
 
     //Splash Api
     implementation ("androidx.core:core-splashscreen:1.0.1")
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
