@@ -53,6 +53,7 @@ android {
 
 dependencies {
 
+    implementation("androidx.room:room-ktx:2.6.0")
     //Paging 3
     val paging_version = "3.1.1"
     implementation ("androidx.paging:paging-runtime:$paging_version")

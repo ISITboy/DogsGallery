@@ -15,17 +15,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.domain.model.Photo
-import org.jetbrains.annotations.Async
 
 @Composable
 fun PhotoCard(
     modifier: Modifier,
     photo: String,
+    onClick: (() -> Unit)? = null
 ){
     val context = LocalContext.current
 
-    Row(modifier = modifier.clickable { }){
+    Row(modifier = modifier.clickable {onClick?.invoke() }){
         AsyncImage(
             modifier = Modifier.fillMaxWidth().height(300.dp).clip(MaterialTheme.shapes.medium),
             model = ImageRequest.Builder(context).data(photo).build(),

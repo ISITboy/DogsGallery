@@ -1,6 +1,8 @@
 package com.example.dogsphotos.presentation.photosNavigator
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,10 +23,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.dogsphotos.R
+import com.example.dogsphotos.presentation.bookmark.BookmarkScreen
+import com.example.dogsphotos.presentation.bookmark.BookmarkViewModel
+import com.example.dogsphotos.presentation.details.DetailsViewModel
 import com.example.dogsphotos.presentation.home.HomeScreen
 import com.example.dogsphotos.presentation.home.HomeViewModel
+import com.example.dogsphotos.presentation.mainActivity.MainViewModel
 import com.example.dogsphotos.presentation.nvgraph.Route
 import com.example.dogsphotos.presentation.photosNavigator.common.PhotosBottomNavigation
+import com.example.dogsphotos.presentation.search.SearchScreen
+import com.example.dogsphotos.presentation.search.SearchViewModel
+import com.example.domain.model.Photo
+import com.loc.newsapp.presentation.details.DetailsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,28 +68,30 @@ fun PhotosNavigator() {
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
-        PhotosBottomNavigation(
-            items = bottomNavigationItems,
-            selectedItem = selectedItem,
-            onItemClick = {index->
-                when (index) {
-                    0 -> navigateToTab(
-                        navController = navController,
-                        route = Route.HomeScreen.route
-                    )
+        if (isBottomBarVisible) {
+            PhotosBottomNavigation(
+                items = bottomNavigationItems,
+                selectedItem = selectedItem,
+                onItemClick = { index ->
+                    when (index) {
+                        0 -> navigateToTab(
+                            navController = navController,
+                            route = Route.HomeScreen.route
+                        )
 
-                    1 -> navigateToTab(
-                        navController = navController,
-                        route = Route.SearchScreen.route
-                    )
+                        1 -> navigateToTab(
+                            navController = navController,
+                            route = Route.SearchScreen.route
+                        )
 
-                    2 -> navigateToTab(
-                        navController = navController,
-                        route = Route.BookmarkScreen.route
-                    )
+                        2 -> navigateToTab(
+                            navController = navController,
+                            route = Route.BookmarkScreen.route
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
     } ) {
         val bottomPadding = it.calculateBottomPadding()
         NavHost(
@@ -87,30 +99,80 @@ fun PhotosNavigator() {
             startDestination = Route.HomeScreen.route,
             modifier = Modifier.padding(bottom = bottomPadding)
         ) {
-            composable(route = Route.HomeScreen.route) { backStackEntry ->
+            composable(route = Route.HomeScreen.route) {
                 val viewModel: HomeViewModel = hiltViewModel()
                 val photos = viewModel.news.collectAsLazyPagingItems()
                 HomeScreen(
                     photos = photos,
-//                    navigateToSearch = {
-//                        navigateToTab(
-//                            navController = navController,
-//                            route = Route.SearchScreen.route
-//                        )
-//                    },
-//                    navigateToDetails = { article ->
-//                        navigateToDetails(
-//                            navController = navController,
-//                            article = article
-//                        )
-//                    }
+                    navigateToSearch = {
+                        navigateToTab(
+                            navController = navController,
+                            route = Route.SearchScreen.route
+                        )
+                    },
+                    navigateToDetails = { url ->
+                        navigateToDetails(
+                            navController = navController,
+                            url = url
+                        )
+                    }
+                )
+            }
+            composable(route = Route.SearchScreen.route) {
+                val viewModel: SearchViewModel = hiltViewModel()
+                val state = viewModel.state.value
+                OnBackClickStateSaver(navController = navController)
+                SearchScreen(
+                    state = state,
+                    event = viewModel::onEvent,
+                    navigateToDetails = { url ->
+                        navigateToDetails(
+                            navController = navController,
+                            url = url
+                        )
+                    }
+                )
+            }
+            composable(route = Route.DetailsScreen.route) {
+                val viewModel: DetailsViewModel = hiltViewModel()
+                navController.previousBackStackEntry?.savedStateHandle?.get<String?>("photo")
+                    ?.let { photo ->
+                        DetailsScreen(
+                            photo = Photo(photo),
+                            event = viewModel::onEvent,
+                            navigateUp = { navController.navigateUp() },
+                            sideEffect = viewModel.sideEffect
+                        )
+                    }
+
+            }
+            composable(route = Route.BookmarkScreen.route) {
+                val viewModel: BookmarkViewModel = hiltViewModel()
+                val state = viewModel.state.value
+                OnBackClickStateSaver(navController = navController)
+                BookmarkScreen(
+                    state = state,
+                    navigateToDetails = { photo ->
+                        navigateToDetails(
+                            navController = navController,
+                             url = photo.urlToImage
+                        )
+                    }
                 )
             }
         }
     }
 
 }
-
+@Composable
+fun OnBackClickStateSaver(navController: NavController) {
+    BackHandler(true) {
+        navigateToTab(
+            navController = navController,
+            route = Route.HomeScreen.route
+        )
+    }
+}
 private fun navigateToTab(navController: NavController, route: String) {
     navController.navigate(route) {
         navController.graph.startDestinationRoute?.let { screen_route ->
@@ -121,4 +183,11 @@ private fun navigateToTab(navController: NavController, route: String) {
         launchSingleTop = true
         restoreState = true
     }
+}
+
+private fun navigateToDetails(navController: NavController, url: String) {
+    navController.currentBackStackEntry?.savedStateHandle?.set("photo", url)
+    navController.navigate(
+        route = Route.DetailsScreen.route
+    )
 }

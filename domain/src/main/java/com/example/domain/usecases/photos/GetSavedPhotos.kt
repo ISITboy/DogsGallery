@@ -1,14 +1,16 @@
 package com.example.domain.usecases.photos
 
-import androidx.paging.PagingData
+import com.example.domain.manger.PhotosDogDao
+import com.example.domain.model.Photo
 import com.example.domain.repository.PhotosRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetPhotos (
+class GetSavedPhotos @Inject constructor(
     private val photosRepository: PhotosRepository
 ) {
-    operator fun invoke(): Flow<PagingData<String>> {
-        return photosRepository.getPhoto()
+
+    operator fun invoke(): Flow<List<Photo>> {
+        return photosRepository.getSavedPhotos()
     }
 }

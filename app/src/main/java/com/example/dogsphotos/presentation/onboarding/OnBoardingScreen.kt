@@ -66,7 +66,7 @@ fun OnBoardingScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val scope = rememberCoroutineScope()
-                //Hide the button when the first element of the list is empty
+
                 if (buttonsState.value[0].isNotEmpty()) {
                     AppTextButton(
                         text = buttonsState.value[0],
@@ -85,7 +85,6 @@ fun OnBoardingScreen(
                     onClick = {
                         scope.launch {
                             if (pagerState.currentPage == 2){
-                                Log.d("MyLog","res = 2")
                                 event(OnBoardingEvent.SaveAppEntry)
                             }else{
                                 pagerState.animateScrollToPage(

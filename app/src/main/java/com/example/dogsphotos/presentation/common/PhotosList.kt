@@ -13,11 +13,13 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.dogsphotos.presentation.Dimens.ExtraSmallPadding2
 import com.example.dogsphotos.presentation.Dimens.MediumPadding1
+import com.example.domain.model.Photo
 
 @Composable
 fun PhotosList(
     modifier: Modifier = Modifier,
-    photos: List<String>
+    photos: List<Photo>,
+    onClick: (Photo) -> Unit
 ) {
     if (photos.isEmpty()){
         Text(text="Not Photo")
@@ -31,7 +33,7 @@ fun PhotosList(
             count = photos.size,
         ) {
             photos[it]?.let { photo ->
-                PhotoCard(photo = photo, modifier = modifier)
+                PhotoCard(photo = photo.urlToImage,modifier = modifier, onClick = { onClick(Photo(photo.urlToImage)) })
             }
         }
     }
@@ -42,6 +44,7 @@ fun PhotosList(
 fun PhotosList(
     modifier: Modifier = Modifier,
     photos: LazyPagingItems<String>,
+    onClick: (String) -> Unit
 ) {
 
     val handlePagingResult = handlePagingResult(photos)
@@ -56,8 +59,8 @@ fun PhotosList(
             items(
                 count = photos.itemCount,
             ) {
-                photos[it]?.let { article ->
-                    PhotoCard(photo = article,modifier=modifier)
+                photos[it]?.let { photo ->
+                    PhotoCard(photo = photo,modifier=modifier, onClick = { onClick(photo) })
                 }
             }
         }
@@ -65,8 +68,8 @@ fun PhotosList(
 }
 
 @Composable
-fun handlePagingResult(articles: LazyPagingItems<String>): Boolean {
-    val loadState = articles.loadState
+fun handlePagingResult(photos: LazyPagingItems<String>): Boolean {
+    val loadState = photos.loadState
     val error = when {
         loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
         loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error

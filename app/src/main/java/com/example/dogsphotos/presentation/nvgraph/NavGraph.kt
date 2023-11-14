@@ -25,7 +25,6 @@ fun NavGraph(
             route = Route.AppStartNavigation.route
         ){
             composable(route = Route.OnBoardingScreen.route){
-                Log.d("MyLog","NavGraph - OnBoardingScreen")
                 val viewModel : OnBoardingViewModel = hiltViewModel()
                 OnBoardingScreen(event = viewModel::onEvent)
             }

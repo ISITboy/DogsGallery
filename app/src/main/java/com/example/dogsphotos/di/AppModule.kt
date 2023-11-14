@@ -1,15 +1,20 @@
 package com.example.dogsphotos.di
 
 import android.app.Application
+import androidx.room.Room
+import com.example.data.local.Database
+import com.example.domain.manger.PhotosDogDao
 import com.example.data.manager.LocalUserManagerImpl
 import com.example.data.remote.DogsPhotosAPI
 import com.example.data.remote.repository.PhotosRepositoryImpl
-import com.example.dogsphotos.Constants.BASE_URL
+import com.example.dogsphotos.utils.Constants.BASE_URL
 import com.example.domain.repository.PhotosRepository
 import com.example.domain.usecases.app_entry.AppEntryUsesCases
 import com.example.domain.usecases.app_entry.ReadAppEntry
 import com.example.domain.usecases.app_entry.SaveAppEntry
+import com.example.domain.usecases.breedsDogs.GetBreedsDogs
 import com.example.domain.usecases.photos.GetPhotos
+import com.example.domain.usecases.photos.GetSelectedDogs
 import com.example.domain.usecases.photos.PhotosUseCases
 import com.loc.newsapp.domain.manger.LocalUserManger
 import dagger.Module
@@ -52,8 +57,9 @@ object AppModule {
     @Provides
     @Singleton
     fun providePhotosRepository(
-        photosAPI: DogsPhotosAPI
-    ):PhotosRepository = PhotosRepositoryImpl(photosAPI)
+        photosAPI: DogsPhotosAPI,
+        photosDogDao: PhotosDogDao
+    ):PhotosRepository = PhotosRepositoryImpl(photosAPI,photosDogDao)
 
     @Provides
     @Singleton
@@ -61,8 +67,32 @@ object AppModule {
         photosRepository: PhotosRepository
     ):PhotosUseCases{
         return PhotosUseCases(
-            getPhotos = GetPhotos(photosRepository)
+            getPhotos = GetPhotos(photosRepository),
+            getSelectedDogs = GetSelectedDogs(photosRepository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGetBreedsDogs(
+        photosRepository: PhotosRepository
+    ) = GetBreedsDogs(photosRepository)
+
+    @Provides
+    @Singleton
+    fun provideNewsDatabase(
+        application: Application
+    ): Database {
+        return Room.databaseBuilder(
+            context = application,
+            klass = Database::class.java,
+            name = "news_db"
+        ).fallbackToDestructiveMigration().build()
+    }
+    @Provides
+    @Singleton
+    fun providePhotosDogsDao(
+        database: Database
+    ): PhotosDogDao = database.photosDogDao
 
 }
